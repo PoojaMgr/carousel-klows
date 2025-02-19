@@ -1,42 +1,83 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const carousel = document.querySelector(".group");
-  const cards = Array.from(carousel.children);
-  const duplicateCards = cards.map((card) => card.cloneNode(true));
+let xDown = null;
+let yDown = null;
 
-  // Append duplicated items to avoid the jump effect
-  duplicateCards.forEach((card) => carousel.appendChild(card));
-  const matchMedia = window.matchMedia("(max-width: 800px)");
+const cardIndex = {
+  leftSwipe: 4,
+  rightSwipe: 6,
+};
 
-  function infiniteScroll() {
-    if (window.innerWidth <= 800) {
-      // Only apply on mobile
-      let scrollAmount = 1;
-      setInterval(() => {
-        carousel.scrollBy(0, scrollAmount);
-        if (carousel.scrollTop >= carousel.scrollHeight / 2) {
-          carousel.scrollTop = 0; // Reset to the top
-        }
-      }, 30);
-    }
+const slider = document.getElementById("container");
+const group = document.getElementById("group");
+const originalGroupLength = group.children.length;
+
+const handleTouchStart = (evt) => {
+  xDown = evt.touches[0].clientX;
+  yDown = evt.touches[0].clientY;
+};
+
+const handleTouchEnd = (evt) => {
+  evt.preventDefault();
+  if (!xDown || !yDown) return;
+
+  const xDiff = xDown - evt.changedTouches[0].clientX;
+  const yDiff = yDown - evt.changedTouches[0].clientY;
+
+  if (Math.abs(xDiff) > Math.abs(yDiff)) {
+    xDiff > 0 ? updateSlide("left") : updateSlide("right");
   }
 
-  infiniteScroll();
+  xDown = null;
+  yDown = null;
+};
 
-  window.addEventListener("resize", infiniteScroll); // Reapply on resize
-  if (!matchMedia.matches) {
-    function updateAnimation() {
-      carousel.style.animation = "scrollingX 10s linear infinite";
-    }
-    carousel.style.animation = "scrollingX 10s linear infinite";
-    updateAnimation();
-    window.addEventListener("resize", updateAnimation);
+const updateSlide = (direction) => {
+  const fragment = document.createDocumentFragment();
 
-    // Prevent animation reset issue when reaching the end
-    carousel.addEventListener("animationiteration", () => {
-      carousel.style.animation = "none"; // Temporarily stop animation
-      carousel.style.transform = "translateX(0) translateY(0)"; // Reset instantly
-      void carousel.offsetWidth; // Force reflow to restart animation
-      updateAnimation(); // Restart animation
-    });
+  if (direction === "left") {
+    if (cardIndex.leftSwipe === 7) cardIndex.leftSwipe = 1;
+    fragment.appendChild(
+      createCard(
+        `./images/${cardIndex.leftSwipe}.jpg`,
+        `bird${cardIndex.leftSwipe}`
+      )
+    );
+    cardIndex.leftSwipe++;
+    group.appendChild(fragment);
+    if (group.children.length > originalGroupLength) group.children[0].remove();
+  } else {
+    cardIndex.rightSwipe--;
+    if (cardIndex.rightSwipe === 0) cardIndex.rightSwipe = 6;
+    fragment.prepend(
+      createCard(
+        `./images/${cardIndex.rightSwipe}.jpg`,
+        `bird${cardIndex.rightSwipe}`
+      )
+    );
+    group.prepend(fragment);
+    if (group.children.length > originalGroupLength)
+      group.lastElementChild.remove();
   }
-});
+};
+
+/** Create dynamic cards */
+const createCard = (imageSrc, altText) => {
+  const card = document.createElement("div");
+  card.id = "card";
+  const anchor = document.createElement("a");
+  anchor.id = "image-container";
+  const img = document.createElement("img");
+  img.src = imageSrc;
+  img.alt = altText;
+  img.loading = "lazy";
+  anchor.appendChild(img);
+  card.appendChild(anchor);
+  return card;
+};
+
+const showSlides = (n) => {
+  if (n.code === "ArrowLeft" || n >= 1) updateSlide("right");
+  if (n.code === "ArrowRight" || n < 1) updateSlide("left");
+};
+slider.addEventListener("touchstart", handleTouchStart);
+slider.addEventListener("touchend", handleTouchEnd);
+document.addEventListener("keydown", showSlides);

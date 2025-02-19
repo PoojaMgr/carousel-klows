@@ -4,36 +4,35 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./carousel.css" />
+    <script src="./carousel.js" defer></script>
 </head>
 
 <body>
-    <h2>Custom Carousel</h2>
-    <div class="container">
-        <div class="group">
-            <div class="card">
-                <a class="image-container">
+    <h2>Carousel</h2>
+    <div id="container">
+        <div id="group">
+            <div id="card">
+                <a id="image-container">
                     <img src="./images/1.jpg" alt="bird1" loading="lazy" />
                 </a>
             </div>
-            <div class="card">
-                <a class="image-container">
+            <div id="card">
+                <a id="image-container">
                     <img src="./images/2.jpg" alt="bird2" loading="lazy" />
                 </a>
             </div>
-            <div class="card">
-                <a class="image-container">
+            <div id="card">
+                <a id="image-container">
                     <img src="./images/3.jpg" alt="bird3" loading="lazy" />
                 </a>
             </div>
-            <div class="card">
-                <a class="image-container">
-                    <img src="./images/4.jpg" alt="bird4" loading="lazy" />
-                </a>
-            </div>
         </div>
+        <!-- Next and previous buttons -->
+        <a class="prev" onClick="showSlides(-1)">&#10094;</a>
+        <a class="next" onClick="showSlides(1)">&#10095;</a>
     </div>
 
-    <script src="./carousel.js" defer></script>
+
 </body>
 
 </html>
